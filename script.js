@@ -1,6 +1,8 @@
 // ══════════════════════════════════
 // STATE
 // ══════════════════════════════════
+const STORAGE_KEY = 'cbes-project-state-v1';
+
 const state = {
   role: 'student',
   studentName: '',
@@ -44,10 +46,46 @@ const defaultQuestions = [
 state.questions = [...defaultQuestions];
 let correctAnswerKey = null;
 
+function loadPersistentState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+
+    const saved = JSON.parse(raw);
+    if (saved && typeof saved === 'object') {
+      if (Array.isArray(saved.questions) && saved.questions.length) {
+        state.questions = saved.questions;
+      }
+      if (saved.config && typeof saved.config === 'object') {
+        state.config = { ...state.config, ...saved.config };
+      }
+      if (Array.isArray(saved.results)) {
+        state.results = saved.results;
+      }
+    }
+  } catch (error) {
+    console.warn('Unable to restore project state:', error);
+  }
+}
+
+function savePersistentState() {
+  try {
+    const payload = {
+      questions: state.questions,
+      results: state.results,
+      config: state.config,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn('Unable to save project state:', error);
+  }
+}
+
 // ══════════════════════════════════
 // INIT
 // ══════════════════════════════════
 function init() {
+  loadPersistentState();
   toggleTypeFields();
   updateAdminStats();
   renderQuestionsList();
@@ -113,12 +151,14 @@ function toggleSetting(el) {
   el.classList.toggle('on');
   const map = { 'tog-tabswitch':'tabSwitch','tog-copypaste':'copyPaste','tog-rightclick':'rightClick','tog-shuffle':'shuffle','tog-autosubmit':'autoSubmit','tog-fullscreen':'fullscreen' };
   state.config[map[el.id]] = el.classList.contains('on');
+  savePersistentState();
 }
 
 function saveConfig() {
   state.config.duration = parseInt(document.getElementById('cfg-duration').value) || 30;
   state.config.passScore = parseInt(document.getElementById('cfg-pass').value) || 60;
   state.config.code = document.getElementById('cfg-code').value || '1234';
+  savePersistentState();
   alert('✅ Configuration saved!');
 }
 
@@ -201,6 +241,21 @@ function toggleTypeFields() {
   document.getElementById('short-hint').style.display = type==='short' ? 'block' : 'none';
 }
 
+function resetQuestionBuilder() {
+  document.getElementById('q-text').value = '';
+  ['a','b','c','d'].forEach(l => {
+    document.getElementById('opt-'+l).value = '';
+    document.getElementById('mark-'+l).textContent = '○';
+    document.getElementById('mark-'+l).classList.remove('correct');
+  });
+  document.getElementById('q-keywords').value = '';
+  document.getElementById('q-points').value = '1';
+  document.getElementById('q-type').value = 'mcq';
+  selectedCorrect = null;
+  selectedTF = null;
+  toggleTypeFields();
+}
+
 function addQuestion() {
   const type = document.getElementById('q-type').value;
   const text = document.getElementById('q-text').value.trim();
@@ -222,26 +277,15 @@ function addQuestion() {
   }
 
   state.questions.push(q);
+  savePersistentState();
   renderQuestionsList();
   updateAdminStats();
-
-  // Reset form
-  document.getElementById('q-text').value = '';
-  ['a','b','c','d'].forEach(l => {
-    document.getElementById('opt-'+l).value = '';
-    document.getElementById('mark-'+l).textContent = '○';
-    document.getElementById('mark-'+l).classList.remove('correct');
-  });
-  document.getElementById('q-keywords').value = '';
-  document.getElementById('q-points').value = '1';
-  document.getElementById('q-type').value = 'mcq';
-  selectedCorrect = null;
-  selectedTF = null;
-  toggleTypeFields();
+  resetQuestionBuilder();
 }
 
 function deleteQuestion(id) {
   state.questions = state.questions.filter(q => q.id !== id);
+  savePersistentState();
   renderQuestionsList();
   updateAdminStats();
 }
@@ -536,7 +580,6 @@ function submitExam() {
   const mm = Math.floor(timeTaken/60).toString().padStart(2,'0');
   const ss = (timeTaken%60).toString().padStart(2,'0');
 
-  // Grade
   let correct = 0, wrong = 0, skipped = 0;
   let totalPoints = 0, earnedPoints = 0;
   const reviewData = [];
@@ -555,7 +598,6 @@ function submitExam() {
       else wrong++;
       reviewData.push({ q, ans, isCorrect, skipped: false });
     } else {
-      // Short answer: keyword matching
       const kws = (q.keywords||[]);
       isCorrect = kws.length > 0 && kws.some(k => ans.toLowerCase().includes(k));
       if (isCorrect) { correct++; earnedPoints += q.points; }
@@ -567,7 +609,6 @@ function submitExam() {
   const score = totalPoints > 0 ? Math.round(earnedPoints/totalPoints*100) : 0;
   const passed = score >= state.config.passScore;
 
-  // Record result
   const result = {
     name: state.studentName,
     score,
@@ -578,10 +619,10 @@ function submitExam() {
     flags: state.tabSwitches + state.copyAttempts,
     passed,
   };
-  state.results.push(result);
-  updateAdminStats();
 
-  // Show results screen
+  state.results.push(result);
+  savePersistentState();
+  updateAdminStats();
   showResultsScreen(score, correct, wrong, skipped, passed, reviewData, mm, ss);
 }
 
@@ -602,7 +643,6 @@ function showResultsScreen(score, correct, wrong, skipped, passed, reviewData, m
   ring.style.stroke = passed ? 'url(#ring-grad)' : '#DC2626';
   setTimeout(() => ring.style.strokeDashoffset = offset, 100);
 
-  // Security log
   if (state.securityLog.length) {
     document.getElementById('cheating-log').style.display = 'block';
     document.getElementById('cheat-items').innerHTML = state.securityLog.map(l => `
@@ -615,7 +655,6 @@ function showResultsScreen(score, correct, wrong, skipped, passed, reviewData, m
     document.getElementById('cheating-log').style.display = 'none';
   }
 
-  // Review
   const letters = ['A','B','C','D'];
   const keys = ['a','b','c','d'];
   document.getElementById('review-list').innerHTML = reviewData.map((d,i) => {
