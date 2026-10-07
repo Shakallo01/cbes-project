@@ -169,9 +169,7 @@
     position: sticky; top: 0; z-index: 100;
   }
 
-  .admin-nav {
-    display: flex; gap: .25rem;
-  }
+  .admin-nav { display: flex; gap: .25rem; }
 
   .nav-btn {
     padding: .4rem .9rem; border-radius: 6px;
@@ -198,7 +196,6 @@
 
   .section-title span { color: var(--accent); }
 
-  /* Stats */
   .stats-grid {
     display: grid; grid-template-columns: repeat(4, 1fr);
     gap: 1rem; margin-bottom: 2rem;
@@ -226,7 +223,6 @@
   .stat-value.red { color: var(--warn); }
   .stat-value.orange { color: var(--warn2); }
 
-  /* Question Builder */
   .question-builder {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -266,9 +262,7 @@
     margin-bottom: 1rem;
   }
 
-  .option-row {
-    display: flex; align-items: center; gap: .5rem;
-  }
+  .option-row { display: flex; align-items: center; gap: .5rem; }
 
   .option-letter {
     width: 28px; height: 28px; flex-shrink: 0;
@@ -299,7 +293,6 @@
 
   .btn-add:hover { background: rgba(11,123,107,.15); }
 
-  /* Questions list */
   .questions-list { display: flex; flex-direction: column; gap: .75rem; }
 
   .q-item {
@@ -336,7 +329,6 @@
 
   .btn-icon:hover { border-color: var(--warn); color: var(--warn); }
 
-  /* Exam Config */
   .config-grid {
     display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
   }
@@ -384,7 +376,6 @@
 
   .toggle.on::after { left: 18px; }
 
-  /* Results table */
   .results-table {
     width: 100%; border-collapse: collapse;
     font-size: .85rem;
@@ -418,9 +409,6 @@
     color: var(--warn2);
   }
 
-  /* ══════════════════════════════════
-     EXAM SCREEN
-  ══════════════════════════════════ */
   #exam-screen { flex-direction: column; }
 
   .exam-topbar {
@@ -435,8 +423,7 @@
   .exam-title-bar { font-weight: 700; font-size: .95rem; }
 
   .student-badge {
-    font-family: var(--mono); font-size: .75rem;
-    color: var(--muted);
+    font-family: var(--mono); font-size: .75rem; color: var(--muted);
   }
 
   .exam-timer {
@@ -460,9 +447,7 @@
     font-family: var(--mono); font-size: .68rem; color: var(--warn2);
   }
 
-  .security-indicator {
-    display: flex; align-items: center; gap: .35rem;
-  }
+  .security-indicator { display: flex; align-items: center; gap: .35rem; }
 
   .sec-dot {
     width: 6px; height: 6px; border-radius: 50%;
@@ -477,13 +462,9 @@
   .sec-dot.warn { background: var(--warn2); }
   .sec-dot.danger { background: var(--warn); }
 
-  .exam-body {
-    display: flex; flex: 1; overflow: hidden;
-  }
+  .exam-body { display: flex; flex: 1; overflow: hidden; }
 
-  .question-panel {
-    flex: 1; padding: 2rem; overflow-y: auto;
-  }
+  .question-panel { flex: 1; padding: 2rem; overflow-y: auto; }
 
   .question-sidebar {
     width: 240px; background: var(--surface);
@@ -519,7 +500,6 @@
   .legend-item { display: flex; align-items: center; gap: .5rem; font-family: var(--mono); font-size: .68rem; color: var(--muted); }
   .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
 
-  /* Question card */
   .q-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -583,7 +563,6 @@
 
   .opt-text { font-size: .9rem; line-height: 1.5; padding-top: .1rem; }
 
-  /* Text answer */
   .text-answer {
     width: 100%; padding: .9rem 1.1rem;
     background: var(--surface2); border: 1px solid var(--border);
@@ -633,9 +612,6 @@
 
   .btn-submit-exam:hover { filter: brightness(1.1); }
 
-  /* ══════════════════════════════════
-     RESULTS SCREEN
-  ══════════════════════════════════ */
   #results-screen {
     align-items: center; justify-content: flex-start;
     padding: 2rem; overflow-y: auto;
@@ -655,9 +631,7 @@
 
   .results-sub { color: var(--muted); font-family: var(--mono); font-size: .85rem; }
 
-  .score-ring-wrap {
-    display: flex; justify-content: center; margin-bottom: 2rem;
-  }
+  .score-ring-wrap { display: flex; justify-content: center; margin-bottom: 2rem; }
 
   .score-ring-svg { overflow: visible; }
 
@@ -712,7 +686,6 @@
   .your-ans.ok { color: var(--accent); }
   .correct-ans { color: var(--accent); }
 
-  /* Cheating alerts */
   .cheating-log {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;
@@ -745,7 +718,6 @@
 
   .btn-back:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* Overlays */
   .overlay {
     position: fixed; inset: 0; z-index: 999;
     background: rgba(244,246,250,.88); backdrop-filter: blur(8px);
@@ -773,7 +745,6 @@
 
   .btn-warn { padding: .7rem 1.5rem; background: var(--warn); border: none; border-radius: 8px; color: #fff; font-family: var(--mono); font-size: .8rem; cursor: pointer; }
 
-  /* Confiscation overlay */
   .confiscated {
     background: rgba(220,38,38,.05);
     border-color: var(--warn);
@@ -781,7 +752,6 @@
 
   .confiscated::before { background: var(--warn); }
 
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -792,4 +762,81 @@
     .question-sidebar { display: none; }
     .results-stats { grid-template-columns: repeat(2, 1fr); }
     .builder-row { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 560px) {
+    #login-screen,
+    #results-screen {
+      padding: 1rem;
+    }
+
+    .login-card,
+    .q-card,
+    .config-card,
+    .stat-card {
+      padding: 1rem;
+    }
+
+    .admin-header {
+      padding: 1rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: .75rem;
+    }
+
+    .admin-nav {
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+
+    .admin-body {
+      padding: 1rem;
+    }
+
+    .exam-topbar {
+      padding: .75rem 1rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: .75rem;
+    }
+
+    .security-bar {
+      flex-wrap: wrap;
+      gap: .5rem;
+      padding: .5rem 1rem;
+    }
+
+    .question-panel {
+      padding: 1rem;
+    }
+
+    .exam-nav {
+      flex-wrap: wrap;
+      gap: .75rem;
+    }
+
+    .options-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .results-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .btn-nav,
+    .btn-flag,
+    .btn-submit-exam {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .q-meta {
+      flex-direction: column;
+      gap: .25rem;
+    }
+
+    .review-answers {
+      flex-direction: column;
+      gap: .25rem;
+    }
   }
