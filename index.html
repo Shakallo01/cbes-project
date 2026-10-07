@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExamShield — Computer-Based Examination System</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ══ LOGIN ══ -->
+  <div class="screen active" id="login-screen">
+    <div class="login-card">
+      <div class="brand">
+        <div class="brand-icon">🛡️</div>
+        <div>
+          <div class="brand-name">ExamShield</div>
+          <div class="brand-tag">Secure CBT Platform</div>
+        </div>
+      </div>
+      <div class="login-title">Sign in to your portal</div>
+      <div class="role-tabs">
+        <button class="role-tab active" onclick="switchRole('student')">Student</button>
+        <button class="role-tab" onclick="switchRole('admin')">Administrator</button>
+      </div>
+      <div class="field">
+        <label>Name/Matric No</label>
+        <input type="text" id="login-name" placeholder="Enter your Name/Matric" value="U22/FNS/CSC/1211">
+      </div>
+      <div class="field" id="exam-select-wrap">
+        <label>Select Exam</label>
+        <select id="exam-select">
+          <option value="math">CSC311 — 30 mins</option>
+          <option value="science">CSC301 — 45 mins</option>
+          <option value="english">CSC309 — 30 mins</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Access Code / Password</label>
+        <input type="password" id="login-pass" placeholder="••••••••" value="1234">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Begin Session →</button>
+      <div class="security-notice">
+        <div class="icon">⚠️</div>
+        <p>This exam is monitored. Tab switching, copy-paste, and window changes are logged and may lead to disqualification.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ADMIN ══ -->
+  <div class="screen" id="admin-screen">
+    <div class="admin-header">
+      <div class="brand" style="margin:0">
+        <div class="brand-icon" style="width:36px;height:36px;font-size:1.1rem">🛡️</div>
+        <div class="brand-name" style="font-size:1.2rem">ExamShield</div>
+      </div>
+      <div class="admin-nav">
+        <button class="nav-btn active" onclick="switchAdminTab('dashboard', this)">Dashboard</button>
+        <button class="nav-btn" onclick="switchAdminTab('questions', this)">Questions</button>
+        <button class="nav-btn" onclick="switchAdminTab('config', this)">Exam Config</button>
+        <button class="nav-btn" onclick="switchAdminTab('results', this)">Results</button>
+      </div>
+      <button class="btn-nav" onclick="logout()">← Logout</button>
+    </div>
+    <div class="admin-body">
+
+      <!-- Dashboard Tab -->
+      <div class="admin-tab active" id="tab-dashboard">
+        <div class="section-title">📊 Admin <span>Dashboard</span></div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Questions</div>
+            <div class="stat-value blue" id="stat-q">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Exams Taken</div>
+            <div class="stat-value green" id="stat-taken">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pass Rate</div>
+            <div class="stat-value green" id="stat-pass">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Cheating Flags</div>
+            <div class="stat-value red" id="stat-flags">0</div>
+          </div>
+        </div>
+        <div class="section-title" style="font-size:1rem;margin-bottom:1rem;">Recent Activity</div>
+        <div class="questions-list" id="recent-activity">
+          <div class="q-item" style="opacity:.5">
+            <div class="q-num">—</div>
+            <div class="q-content">
+              <div class="q-text" style="color:var(--muted);font-size:.85rem">No exam results yet. Start by adding questions and configuring your exam.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Questions Tab -->
+      <div class="admin-tab" id="tab-questions">
+        <div class="section-title">📝 Question <span>Bank</span></div>
+        <div class="question-builder">
+          <div class="builder-row">
+            <div>
+              <div class="builder-label">Question Type</div>
+              <select class="builder-select" id="q-type" onchange="toggleTypeFields()">
+                <option value="mcq">Multiple Choice (MCQ)</option>
+                <option value="true-false">True / False</option>
+                <option value="short">Short Answer</option>
+              </select>
+            </div>
+            <div>
+              <div class="builder-label">Points</div>
+              <input class="builder-input" type="number" id="q-points" value="1" min="1" max="10">
+            </div>
+          </div>
+          <div class="builder-row full">
+            <div>
+              <div class="builder-label">Question Text</div>
+              <textarea class="builder-textarea" id="q-text" placeholder="Type your question here..."></textarea>
+            </div>
+          </div>
+          <div id="mcq-options">
+            <div class="builder-label">Answer Options (click ✓ to mark correct)</div>
+            <div class="options-grid">
+              <div class="option-row">
+                <div class="option-letter">A</div>
+                <input class="builder-input" id="opt-a" placeholder="Option A">
+                <div class="correct-mark" id="mark-a" onclick="setCorrect('a')">○</div>
+              </div>
+              <div class="option-row">
+                <div class="option-letter">B</div>
+                <input class="builder-input" id="opt-b" placeholder="Option B">
+                <div class="correct-mark" id="mark-b" onclick="setCorrect('b')">○</div>
+              </div>
+              <div class="option-row">
+                <div class="option-letter">C</div>
+                <input class="builder-input" id="opt-c" placeholder="Option C">
+                <div class="correct-mark" id="mark-c" onclick="setCorrect('c')">○</div>
+              </div>
+              <div class="option-row">
+                <div class="option-letter">D</div>
+                <input class="builder-input" id="opt-d" placeholder="Option D">
+                <div class="correct-mark" id="mark-d" onclick="setCorrect('d')">○</div>
+              </div>
+            </div>
+          </div>
+          <div id="tf-options" style="display:none">
+            <div class="builder-label">Correct Answer</div>
+            <div style="display:flex;gap:.5rem">
+              <button class="btn-add" id="tf-true" onclick="setTF('true')" style="flex:1">✓ True</button>
+              <button class="btn-add" id="tf-false" onclick="setTF('false')" style="flex:1">✗ False</button>
+            </div>
+          </div>
+          <div id="short-hint" style="display:none">
+            <div class="builder-label">Expected Keywords (comma-separated)</div>
+            <input class="builder-input" id="q-keywords" placeholder="e.g. photosynthesis, chlorophyll, light">
+          </div>
+          <div style="margin-top:1rem">
+            <button class="btn-add" onclick="addQuestion()">＋ Add Question to Bank</button>
+          </div>
+        </div>
+        <div class="questions-list" id="questions-list">
+          <div class="q-item" style="opacity:.4">
+            <div class="q-content"><div class="q-text" style="color:var(--muted)">No questions added yet. Use the builder above.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Config Tab -->
+      <div class="admin-tab" id="tab-config">
+        <div class="section-title">⚙️ Exam <span>Configuration</span></div>
+        <div class="config-grid">
+          <div class="config-card">
+            <div class="config-title">⏱ Timing & Access</div>
+            <div class="field"><div class="builder-label">Exam Duration (minutes)</div>
+              <input class="builder-input" type="number" id="cfg-duration" value="30" min="1">
+            </div>
+            <div class="field"><div class="builder-label">Pass Score (%)</div>
+              <input class="builder-input" type="number" id="cfg-pass" value="60" min="0" max="100">
+            </div>
+            <div class="field"><div class="builder-label">Access Code</div>
+              <input class="builder-input" id="cfg-code" value="1234">
+            </div>
+          </div>
+          <div class="config-card">
+            <div class="config-title">🛡 Anti-Cheating Features</div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Tab Switch Detection</div><div class="toggle-sub">Flag when student leaves tab</div></div>
+              <div class="toggle on" id="tog-tabswitch" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Copy-Paste Blocking</div><div class="toggle-sub">Prevent Ctrl+C / Ctrl+V</div></div>
+              <div class="toggle on" id="tog-copypaste" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Right-Click Disable</div><div class="toggle-sub">Block context menu</div></div>
+              <div class="toggle on" id="tog-rightclick" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Randomize Questions</div><div class="toggle-sub">Shuffle order per student</div></div>
+              <div class="toggle on" id="tog-shuffle" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Auto-Submit on Timeout</div><div class="toggle-sub">Submit when timer hits zero</div></div>
+              <div class="toggle on" id="tog-autosubmit" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Fullscreen Required</div><div class="toggle-sub">Warn if student exits fullscreen</div></div>
+              <div class="toggle" id="tog-fullscreen" onclick="toggleSetting(this)"></div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1.5rem">
+          <button class="btn-primary" style="max-width:200px" onclick="saveConfig()">Save Configuration</button>
+        </div>
+      </div>
+
+      <!-- Results Tab -->
+      <div class="admin-tab" id="tab-results">
+        <div class="section-title">📈 Exam <span>Results</span></div>
+        <div style="overflow-x:auto">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Score</th>
+                <th>Correct</th>
+                <th>Time Taken</th>
+                <th>Flags</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody">
+              <tr><td colspan="7" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:.8rem;padding:2rem">No results yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ EXAM ══ -->
+  <div class="screen" id="exam-screen">
+    <div class="exam-topbar">
+      <div class="exam-info">
+        <div class="exam-title-bar" id="exam-title-display">Examination</div>
+        <div class="student-badge" id="student-name-display">Student</div>
+      </div>
+      <div class="exam-timer" id="exam-timer">30:00</div>
+    </div>
+    <div class="security-bar">
+      <div class="security-indicator"><div class="sec-dot"></div> MONITORING ACTIVE</div>
+      <div class="security-indicator" id="tab-flag-indicator"><div class="sec-dot warn" id="tab-dot"></div> TAB SWITCHES: <span id="tab-count">0</span></div>
+      <div class="security-indicator" id="copy-flag-indicator"><div class="sec-dot warn"></div> COPY ATTEMPTS: <span id="copy-count">0</span></div>
+      <div class="security-indicator"><div class="sec-dot"></div> AUTO-GRADE ON</div>
+    </div>
+    <div class="exam-body">
+      <div class="question-panel">
+        <div class="q-card">
+          <div class="q-header">
+            <div class="q-counter" id="q-counter">Question 1 of 1</div>
+            <div class="q-badges">
+              <div class="badge type" id="q-type-badge">MCQ</div>
+              <div class="badge pts" id="q-pts-badge">1 pt</div>
+            </div>
+          </div>
+          <div class="q-text-main" id="q-main-text">Question text here</div>
+          <div id="answer-area"></div>
+          <div class="exam-nav">
+            <button class="btn-nav" id="btn-prev" onclick="navigateQ(-1)">← Prev</button>
+            <button class="btn-flag" id="btn-flag" onclick="flagQuestion()">🚩 Flag</button>
+            <div style="display:flex;gap:.5rem">
+              <button class="btn-nav" id="btn-next" onclick="navigateQ(1)">Next →</button>
+              <button class="btn-submit-exam" id="btn-submit" onclick="confirmSubmit()" style="display:none">Submit Exam</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="question-sidebar">
+        <div>
+          <div class="sidebar-section-title">Question Navigator</div>
+          <div class="q-grid" id="q-nav-grid"></div>
+        </div>
+        <div>
+          <div class="sidebar-section-title">Legend</div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--surface2);border:1px solid var(--border)"></div>Not visited</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(0,229,160,.15);border:1px solid rgba(0,229,160,.4)"></div>Answered</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Current</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(255,170,0,.15);border:1px solid rgba(255,170,0,.4)"></div>Flagged</div>
+          </div>
+        </div>
+        <div>
+          <div class="sidebar-section-title">Progress</div>
+          <div style="font-family:var(--mono);font-size:.75rem;color:var(--muted)">
+            Answered: <span id="progress-answered" style="color:var(--accent)">0</span> / <span id="progress-total">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RESULTS ══ -->
+  <div class="screen" id="results-screen">
+    <div class="results-wrapper">
+      <div class="results-header">
+        <div class="results-title" id="res-title">Exam Complete</div>
+        <div class="results-sub" id="res-sub">Your results have been graded and recorded</div>
+      </div>
+      <div class="score-ring-wrap">
+        <svg class="score-ring-svg" viewBox="0 0 200 200" width="200" height="200">
+          <circle class="score-ring-track" cx="100" cy="100" r="80"/>
+          <circle class="score-ring-fill" id="score-ring" cx="100" cy="100" r="80"
+            stroke="url(#ring-grad)" stroke-dasharray="502" stroke-dashoffset="502"
+            transform="rotate(-90 100 100)"/>
+          <defs>
+            <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#0B7B6B"/>
+              <stop offset="100%" stop-color="#007aff"/>
+            </linearGradient>
+          </defs>
+          <text class="score-center-text" x="100" y="95" text-anchor="middle" id="score-pct-text">0%</text>
+          <text class="score-center-label" x="100" y="118" text-anchor="middle" id="score-pass-text">LOADING</text>
+        </svg>
+      </div>
+      <div class="results-stats">
+        <div class="res-stat">
+          <div class="res-stat-val green" id="res-correct">0</div>
+          <div class="res-stat-label">Correct</div>
+        </div>
+        <div class="res-stat">
+          <div class="res-stat-val red" id="res-wrong">0</div>
+          <div class="res-stat-label">Wrong</div>
+        </div>
+        <div class="res-stat">
+          <div class="res-stat-val" style="color:var(--muted)" id="res-skipped">0</div>
+          <div class="res-stat-label">Skipped</div>
+        </div>
+      </div>
+      <div class="cheating-log" id="cheating-log" style="display:none">
+        <div class="cheat-title">⚠️ Security Violations Detected</div>
+        <div id="cheat-items"></div>
+      </div>
+      <div class="section-title" style="font-size:1rem;margin-bottom:1rem">Answer Review</div>
+      <div class="review-list" id="review-list"></div>
+      <button class="btn-back" onclick="logout()">← Return to Login</button>
+    </div>
+  </div>
+
+  <!-- Warning Overlay -->
+  <div class="overlay" id="cheat-overlay">
+    <div class="overlay-card">
+      <div class="overlay-icon">🚨</div>
+      <div class="overlay-title">Security Violation Detected</div>
+      <div class="overlay-msg" id="overlay-msg">You have left the exam tab. This action has been recorded.</div>
+      <div class="overlay-count" id="overlay-count"></div>
+      <button class="btn-warn" onclick="dismissWarning()">I Understand — Return to Exam</button>
+    </div>
+  </div>
+
+  <!-- Submit Confirm Overlay -->
+  <div class="overlay" id="submit-overlay">
+    <div class="overlay-card" style="border-color:var(--accent2)">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
+      <div class="overlay-icon">📋</div>
+      <div class="overlay-title">Submit Exam?</div>
+      <div class="overlay-msg" id="submit-msg">You have answered 0 of 0 questions. Are you sure you want to submit?</div>
+      <div style="display:flex;gap:.75rem;justify-content:center">
+        <button class="btn-nav" onclick="document.getElementById('submit-overlay').classList.remove('show')" style="padding:.7rem 1.5rem">Cancel</button>
+        <button class="btn-submit-exam" onclick="submitExam()">Submit Now</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
