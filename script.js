@@ -15,6 +15,7 @@ const state = {
   copyAttempts: 0,
   securityLog: [],
   results: [],
+  activeQuestions: [],
   config: {
     duration: 30,
     passScore: 60,
@@ -47,6 +48,7 @@ let correctAnswerKey = null;
 // INIT
 // ══════════════════════════════════
 function init() {
+  toggleTypeFields();
   updateAdminStats();
   renderQuestionsList();
 }
@@ -225,8 +227,17 @@ function addQuestion() {
 
   // Reset form
   document.getElementById('q-text').value = '';
-  ['a','b','c','d'].forEach(l => { document.getElementById('opt-'+l).value = ''; document.getElementById('mark-'+l).textContent='○'; document.getElementById('mark-'+l).classList.remove('correct'); });
-  selectedCorrect = null; selectedTF = null;
+  ['a','b','c','d'].forEach(l => {
+    document.getElementById('opt-'+l).value = '';
+    document.getElementById('mark-'+l).textContent = '○';
+    document.getElementById('mark-'+l).classList.remove('correct');
+  });
+  document.getElementById('q-keywords').value = '';
+  document.getElementById('q-points').value = '1';
+  document.getElementById('q-type').value = 'mcq';
+  selectedCorrect = null;
+  selectedTF = null;
+  toggleTypeFields();
 }
 
 function deleteQuestion(id) {
